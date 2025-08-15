@@ -1,22 +1,27 @@
 name: Generate contribution snake
 
 on:
-  schedule: [{ cron: "0 7 * * *" }] # tous les jours 07:00 UTC (~09:00 Paris en été)
+  schedule: [{ cron: "0 7 * * *" }]  # 07:00 UTC
   workflow_dispatch:
   push:
     paths: [".github/workflows/snake.yml"]
 
 permissions:
-  contents: write  # nécessaire pour pousser les fichiers générés
+  contents: write
+
+concurrency:
+  group: snake-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout (full history)
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # permet le rebase propre
 
-      # Génère 2 SVG (clair/sombre) dans le repo courant
       - name: Generate snake SVGs
         uses: Platane/snk/svg-only@v3
         with:
@@ -25,11 +30,28 @@ jobs:
             github-snake.svg
             github-snake-dark.svg?palette=github-dark
 
-      # Commit/push des SVG si modifiés
-      - name: Commit and push
+      - name: Configure git
         run: |
-          git config user.name "github-actions[bot]"
+          git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config pull.rebase true
+
+      - name: Commit
+        run: |
           git add -A
           git commit -m "chore: update snake" || echo "no changes"
-          git push
+
+      - name: Rebase on remote main
+        run: |
+          # S'assure d'être bien sur la branche par défaut (main)
+          CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          if [ "$CURRENT_BRANCH" != "main" ]; then
+            git checkout main
+          fi
+          # Récupère l’état distant et rebase le commit local
+          git fetch origin main
+          git pull --rebase origin main
+
+      - name: Push
+        run: |
+          git push origin HEAD:main
