@@ -1,9 +1,3 @@
-<div align="center">
-  <img src="https://komarev.com/ghpvc/?username=ImSakushi&label=Profile+views&color=7AA2F7&style=for-the-badge" alt="Profile views" />
-</div>
-
-<br/>
-
 ### Contribution Graph
 
 <p align="center">
@@ -15,3 +9,9 @@
   <source media="(prefers-color-scheme: light)" srcset="./github-snake.svg" />
   <img alt="github-snake" src="./github-snake.svg" />
 </picture>
+
+<br/>
+
+<div align="center">
+  <img src="https://komarev.com/ghpvc/?username=ImSakushi&label=Profile+views&color=7AA2F7&style=for-the-badge" alt="Profile views" />
+</div>
